@@ -1,0 +1,50 @@
+
+!!!!!!
+关键:主要是在 接收tcp的方式 和 处理io任务的方式 的不同 <<===========
+??????
+MultiAcceptor.run()的流程 和 SubReactor.run()中的流程 是如何配合的？ <<===========
+
+
+===========================================================================
+
+NIO三个线程模型
+
+1 单线程Reactor模型
+NioServer + Acceptor + Handler
+
+2 单Acceptor线程多IO线程Reactor模型
+NioServer + Acceptor + AsyncHandler
+
+3 多Acceptor线程多IO线程Reactor模型
+NioServer + MultiAcceptor + AsyncHandler
+
+
+
+
+============================Acceptor==============================
+/**
+ * 方式一：单Acceptor
+ */
+//绑定接收事件处理器
+selectionKey.attach(new Acceptor(serverSocketChannel,selector));
+
+/**
+ * 方式二：多Acceptor
+ */
+//selectionKey.attach(new MultiAcceptor(serverSocketChannel,selector));
+
+==========================io read/write===========================
+/**
+ * 方式一：单个线程方式
+ */
+//注册感兴趣的读事件
+//这里把客户端的通道传给handler
+Handler handler = new Handler(socketChannel, selector);
+handler.run();
+
+/**
+ * 方式二：多线程方式(线程池处理的)
+ */
+AsyncHandler asyncHandler = new AsyncHandler(socketChannel, selector);
+asyncHandler.run();
+==================================================================
